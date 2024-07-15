@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <ul class="listaNav">
                 <span class="linkNav"  aria-haspopup="true" aria-expanded="false">${email}</span>
                 <li class="listaItem"><a class="linkNav iniciarSesion" href="/gestion">Gestion Cliente</a></li>
+                <li class="listaItem"><a class="linkNav iniciarSesion" id="eliminarCuenta">Eliminar cuenta</a></li>
                 <li class="listaItem"><a class="linkNav iniciarSesion" href="cambiar_contrasenia.html">Cambiar Contraseña</a></li>
                 <li class="listaItem"><a class="linkNav iniciarSesion" id="cerrarSesion">Cerrar Sesión</a></li>      
             </ul>
@@ -51,4 +52,31 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+// Boton eliminar cuenta
+    const eliminarCuenta = document.getElementById('eliminarCuenta');
+    eliminarCuenta.addEventListener('click', async () => {
+        const token = getCookie('jwt'); // Reemplaza con el token real
+        console.log("llegue hasta el try, el boton es", eliminarCuenta);
+        try {
+            const response = await fetch('/borrarCuenta', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Asegúrate de incluir el token de autenticación
+                },
+                body: JSON.stringify({ token })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Cuenta Eliminada');
+            } else {
+                alert('Error al eliminar cuenta: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al realizar la solicitud');
+        }
+    });
 });

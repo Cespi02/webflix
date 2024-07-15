@@ -19,7 +19,7 @@
     </header>
     <main id="main" class="main">
         <section data-aos="zoom-in" data-aos-duration="1000" class="seccionRegistrarse">
-            <form action="/cambiarContrasenia" method="put" id="cambiarContra">
+            <form action="/cambiarContrasenia" id="cambiarContra">
                 <h2 class="tituloRegistrarse">Cambiar Contraseña</h2>
                 <div>
                     <input type="password" placeholder="Contraseña vieja" id="currentPassword" name="currentPassword">
@@ -30,7 +30,8 @@
                     <div class="error-text"></div>
                 </div>
                 <div>
-                    <button type="submit" class="boton" id="cambiarContraseniaButton">Cambiar Contraseña</button>
+                    <input type="hidden" id="_method" name="_method" value="PUT">
+                    <button type="button" class="boton" id="cambiarContraseniaButton">Cambiar Contraseña</button>
                 </div>
                 <div>
                     <a id="ayuda" class="ayuda" href="registrarse.html">Registrarse</a>
@@ -41,6 +42,8 @@
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
         AOS.init();
+    </script>
+    <script src="cambiar_contrasenia.js">
     </script>
 </body>
 </html>

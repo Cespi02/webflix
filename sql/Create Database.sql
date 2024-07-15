@@ -52,9 +52,7 @@ IF @existe_tabla3 = 0 THEN
         foreign key (id_cliente) references Clientes(id_cliente)
 );
 END IF;
-
-
-
+USE Webflix;
 select @existe_tabla4 := count(TABLE_NAME) 
 from INFORMATION_SCHEMA.TABLES
 WHERE TABLE_NAME = 'Pagos';
@@ -64,7 +62,6 @@ IF @existe_tabla4 = 0 THEN
     id_pago int primary key,
     id_suscripcion int,
     fecha_pago  date,
-    monto int,
-    foreign key (id_suscripcion) references Suscripciones(id_suscripcion)
+    monto int
 );
 END IF;

@@ -73,27 +73,66 @@ app.get("/api/clientes", authenticateToken, function(req, res) {
     });
 });
 
+app.get("/obtenerSuscripcion", authenticateToken, function(req, res) {
+    const select = `SELECT nombre_plan, id_suscripcion 
+                    FROM suscripciones s 
+                    INNER JOIN planes p ON s.id_plan = p.id_plan 
+                    WHERE id_cliente = (SELECT id_cliente FROM clientes WHERE email = '${req.user}')`;
+    console.log(select);
+    
+    conexion.query(select, function(error, filas) {
+        if (error) {
+            console.error('Error en la consulta:', error);  // Añadido para registrar el error
+            return res.status(500).json({ success: false, message: 'Error al obtener la suscripción' });
+        } else {
+            console.log("Datos enviados correctamente");
+            console.log(filas);
+            return res.json({ success: true, data: filas });
+        }
+    });
+});
+
 app.post("/suscribirPlan2500", authenticateToken, (req, res) => {
     const mail =  req.user
     console.log(mail);
-    const suscribir = "INSERT INTO SUSCRIPCIONES(id_plan, id_cliente, fecha_vencimiento) values ('1', (select id_cliente from clientes where email = '"+ mail +"'), '2024-08-14')";
-    conexion.query(suscribir, (error) => {
-        if (error) {
-            throw error;
-        } else {
-            console.log("Suscripción realizada");
-            res.json({ message: 'Suscripción realizada' });
-        }
-    });
+    const suscribir = "INSERT INTO SUSCRIPCIONES(id_plan, id_cliente, fecha_vencimiento) values ('1', (select id_cliente from clientes where email = '"+ mail +"'), '2024-08-14');"
+    const pagos     =  "INSERT INTO PAGOS(id_suscripcion, fecha_pago, monto) values ((select id_suscripcion from suscripciones where id_cliente = (select id_cliente from clientes where email = '"+mail+"')), '15/07/2024', 2500);"
+    console.log(suscribir);
+    console.log(pagos);
+conexion.query(suscribir, (error) => {
+    if (error) {
+        throw error;
+    } else {
+        conexion.query(pagos, (error) => {
+            if (error) {
+                throw error;
+            } else {
+                console.log("Pago Realizado");
+            }
+        });
+        console.log("Suscripción realizada");
+        res.json({ message: 'Suscripción realizada' });
+    }
+});
 });
 app.post("/suscribirPlan5000", authenticateToken, (req, res) => {
     const mail =  req.user
     console.log(mail);
-    const suscribir = "INSERT INTO SUSCRIPCIONES(id_plan, id_cliente, fecha_vencimiento) values ('2', (select id_cliente from clientes where email = '"+ mail +"'), '2024-08-14')";
-    conexion.query(suscribir, (error) => {
+        const suscribir = "INSERT INTO SUSCRIPCIONES(id_plan, id_cliente, fecha_vencimiento) values ('2', (select id_cliente from clientes where email = '"+ mail +"'), '2024-08-14');"
+        const pagos     =  "INSERT INTO PAGOS(id_suscripcion, fecha_pago, monto) values ((select id_suscripcion from suscripciones where id_cliente = (select id_cliente from clientes where email = '"+mail+"')), '15/07/2024', 5000);"
+        console.log(suscribir);
+        console.log(pagos);
+        conexion.query(suscribir, (error) => {
         if (error) {
             throw error;
         } else {
+            conexion.query(pagos, (error) => {
+                if (error) {
+                    throw error;
+                } else {
+                    console.log("Pago Realizado");
+                }
+            });
             console.log("Suscripción realizada");
             res.json({ message: 'Suscripción realizada' });
         }
@@ -102,15 +141,25 @@ app.post("/suscribirPlan5000", authenticateToken, (req, res) => {
 app.post("/suscribirPlan7000", authenticateToken, (req, res) => {
     const mail =  req.user
     console.log(mail);
-    const suscribir = "INSERT INTO SUSCRIPCIONES(id_plan, id_cliente, fecha_vencimiento) values ('3', (select id_cliente from clientes where email = '"+ mail +"'), '2024-08-14')";
+    const suscribir = "INSERT INTO SUSCRIPCIONES(id_plan, id_cliente, fecha_vencimiento) values ('3', (select id_cliente from clientes where email = '"+ mail +"'), '2024-08-14');"
+    const pagos     =  "INSERT INTO PAGOS(id_suscripcion, fecha_pago, monto) values ((select id_suscripcion from suscripciones where id_cliente = (select id_cliente from clientes where email = '"+mail+"')), '15/07/2024', 7000);"
+    console.log(suscribir);
+    console.log(pagos);
     conexion.query(suscribir, (error) => {
-        if (error) {
-            throw error;
-        } else {
-            console.log("Suscripción realizada");
-            res.json({ message: 'Suscripción realizada' });
-        }
-    });
+    if (error) {
+        throw error;
+    } else {
+        conexion.query(pagos, (error) => {
+            if (error) {
+                throw error;
+            } else {
+                console.log("Pago Realizado");
+            }
+        });
+        console.log("Suscripción realizada");
+        res.json({ message: 'Suscripción realizada' });
+    }
+});
 });
 
 app.post("/cerrarSesion", authenticateToken, (req, res) => {
@@ -150,7 +199,6 @@ app.post("/validarInicio", async function(req, res) {
 
     if (!existeMail) {
         res.status(400).send({ status: "Error", message: "El mail es incorrecto" });
-        console.log('El mail es incorrecto');
     } else if (!cuentaCorrecta) {
         res.status(400).send({ status: "Error", message: "Los datos son incorrectos" });
     } else {
@@ -168,7 +216,9 @@ app.post("/validarInicio", async function(req, res) {
 
 app.put("/cambiarContrasenia", authenticateToken, async function(req, res) {
     const { currentPassword, newPassword } = req.body;
-    const email = req.user.email;  // Asumiendo que el payload del token contiene el email del usuario
+    console.log('contraseña actual ',currentPassword)
+    console.log('contraseña nueva ',newPassword)
+    const email = req.user;  // Asumiendo que el payload del token contiene el email del usuario
     try {
         const listaParseada = await obtenerContrasenia(email);
         
@@ -199,6 +249,28 @@ app.put("/cambiarContrasenia", authenticateToken, async function(req, res) {
     }
 });
 
+app.delete("/anularSus", authenticateToken, async function(req, res) {
+    let borrar = 'DELETE FROM SUSCRIPCIONES WHERE id_cliente = (select id_cliente from clientes where email ="'+ req.user +'");';
+    console.log("la query es  "+ borrar);
+    conexion.query(borrar, function(error) {
+        if (error) {
+            return res.status(500).json({ success: false, message: 'Error al anular suscripcion' });
+        }
+        res.json({ success: true, message: 'Suscripción Anulada' });
+    });
+});
+
+app.delete("/borrarCuenta", authenticateToken, async function(req, res) {
+    let borrar = 'DELETE FROM CLIENTES WHERE email = "'+ req.user +'";';
+    console.log("la query es  "+ borrar);
+    conexion.query(borrar, function(error) {
+        if (error) {
+            return res.status(500).json({ success: false, message: 'Debe anular su suscripción primero' });
+        }
+        res.json({ success: true, message: 'Cuenta eliminada correctamente' });
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server corriendo en el puerto ${port}`);
 });
@@ -220,8 +292,12 @@ async function obtenerContrasenia(mail) {
 
 async function inicioSesion(mail, contra) {
     const listaParseada = await obtenerContrasenia(mail);
+    if(listaParseada.length > 0){
     const contraseniaValida = await bcryptjs.compare(contra, listaParseada[0].contrasenia);
     return contraseniaValida;
+    }
+    else
+    return false;
 }
 
 async function validarMail(mailForm) {

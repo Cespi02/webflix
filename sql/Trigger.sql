@@ -6,7 +6,7 @@ CREATE TRIGGER increment_by_one_clientes BEFORE INSERT ON Clientes
 CREATE TRIGGER increment_by_one_planes BEFORE INSERT ON Planes
     FOR EACH ROW 
     SET NEW.id_plan = (SELECT coalesce(MAX(id_plan), 0) + 1 FROM Planes);
-
+    
 CREATE TRIGGER increment_by_one_pagos BEFORE INSERT ON Pagos
     FOR EACH ROW 
     SET NEW.id_pago = (SELECT coalesce(MAX(id_pago), 0) + 1 FROM Pagos);

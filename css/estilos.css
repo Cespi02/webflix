@@ -524,7 +524,10 @@ body{
 }
 
 
-
+.bodyGestion{
+    background:linear-gradient(to right top, #24242473,#24242473),url("img/fondo_gestion.jpg");
+    background-size: cover;
+}
 
 /*ESTILOS ESCRITORIO PARA PAGINA Registrarse */
 .bodyRegistrarse{
@@ -875,4 +878,12 @@ div input{
     padding-left: 5%;
     padding-top: 2%;
     width: 50%;
+}
+
+.listaNav .suscripcion{
+    margin-right: 5px;
+}
+
+.listaNav .email{
+    margin-left: 5px;
 }
